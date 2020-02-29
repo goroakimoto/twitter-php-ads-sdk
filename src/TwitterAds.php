@@ -21,6 +21,7 @@ use Hborras\TwitterAdsSDK\TwitterAds\Errors\ServiceUnavailable;
  */
 class TwitterAds extends Config
 {
+    // customize
     const API_VERSION      = '6';
     const API_REST_VERSION = '1.1';
     const API_HOST = 'https://ads-api.twitter.com';
