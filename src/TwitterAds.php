@@ -433,6 +433,8 @@ class TwitterAds extends Config
         // Append
         $segment_index = 0;
         $media = fopen($parameters['media'], 'rb');
+        // チャンクの単位となるバイト数を取得（チャンク数は0〜999までなので、ファイルの合計バイト数を1000で割る）
+        $upload_chunk = intval(ceil(filesize($parameters['media'])/1000));
         while (!feof($media)) {
             $this->http(
                 'POST',
@@ -442,7 +444,7 @@ class TwitterAds extends Config
                     'command' => 'APPEND',
                     'media_id' => $init->media_id_string,
                     'segment_index' => $segment_index++,
-                    'media_data' => base64_encode(fread($media, self::UPLOAD_CHUNK)),
+                    'media_data' => base64_encode(fread($media, $upload_chunk)),
                 ]
             )->getBody();
         }
