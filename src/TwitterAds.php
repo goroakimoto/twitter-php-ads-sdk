@@ -433,8 +433,11 @@ class TwitterAds extends Config
         // Append
         $segment_index = 0;
         $media = fopen($parameters['media'], 'rb');
-        // チャンクの単位となるバイト数を取得（チャンク数は0〜999までなので、ファイルの合計バイト数を1000で割る）
-        $upload_chunk = intval(ceil(filesize($parameters['media'])/1000));
+        // チャンクの単位となるバイト数を取得する
+        // チャンク数は0〜999までなので、ファイルの合計バイト数を1000で割った数を算出する
+        $chunk = intval(ceil(filesize($parameters['media'])/1000));
+        // 算出した値がSDK側の規定値を超えていれば、その値を扱う
+        $upload_chunk = $chunk > self::UPLOAD_CHUNK ? $chunk : self::UPLOAD_CHUNK;
         while (!feof($media)) {
             $this->http(
                 'POST',
@@ -528,9 +531,9 @@ class TwitterAds extends Config
     public function manageErrors($response)
     {
         $errors = [];
-        if(isset($response->errors)){
+        if (isset($response->errors)) {
             $errors = $response->errors;
-        } else if(isset($response->operation_errors)){
+        } elseif (isset($response->operation_errors)) {
             $errors = $response->operation_errors;
         }
 
@@ -630,7 +633,7 @@ class TwitterAds extends Config
                 $options[CURLOPT_POST] = true;
                 if (isset($postfields['raw'])) {
                     $options[CURLOPT_POSTFIELDS] = $postfields['raw'];
-                } else if (isset($postfields['batch'])) {
+                } elseif (isset($postfields['batch'])) {
                     $options[CURLOPT_POSTFIELDS] = $postfields['batch'];
                 } else {
                     $options[CURLOPT_POSTFIELDS] = Util::buildHttpQuery($postfields);
@@ -759,7 +762,7 @@ class TwitterAds extends Config
      */
     public function getAccountId()
     {
-        if(!$this->account instanceof Account){
+        if (!$this->account instanceof Account) {
             return '';
         }
         return $this->account->getId();
@@ -770,7 +773,7 @@ class TwitterAds extends Config
      */
     public function getAccountTimezone()
     {
-        if(!$this->account instanceof Account){
+        if (!$this->account instanceof Account) {
             return 'UTC';
         }
         return $this->account->getTimezone();
